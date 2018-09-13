@@ -1,5 +1,5 @@
 {
-  "name": "usbrelay",
+  "name": "node-usbrelay",
   "version": "0.1.0",
   "description": "API for controlling one or multiple Sainsmart 16ch USB Relay Board(s)",
   "main": "index.js",
