@@ -210,7 +210,7 @@ var singleArray = Array.from(
   {length: 16*relayGroup.nBoards}, 
   (el, i) => (i%16 == 0 || i%16 == 15) ? 1: 0
 );
-relayGroup.toggle(singleArray, "on", (errors, success) => {
+relayGroup.setStates(singleArray, "on", (errors, success) => {
   if (errors) return console.log(errors);
   console.log(relayGroup.getStates());
 });
@@ -220,7 +220,7 @@ var arrOfArr = relayGroup.boards.map(b => Array.from(
   {length: 16}, 
   (el, i) => (i == 0 || i == 15) ? 1: 0
 ));
-relayGroup.toggle(arrOfArr, "on", (errors, success) => {
+relayGroup.setStates(arrOfArr, "on", (errors, success) => {
   if (errors) return console.log(errors);
   console.log(relayGroup.getStates());
 })
