@@ -208,7 +208,7 @@ var relayGroup = new USBrelay({ports: ports});
 // using single Array
 var singleArray = Array.from(
   {length: 16*relayGroup.nBoards}, 
-  (el, i) => (i%16 == 1 || i%16 == 0) ? 1: 0
+  (el, i) => (i%16 == 0 || i%16 == 15) ? 1: 0
 );
 relayGroup.toggle(singleArray, "on", (errors, success) => {
   if (errors) return console.log(errors);
@@ -218,7 +218,7 @@ relayGroup.toggle(singleArray, "on", (errors, success) => {
 // using Array of Arrays
 var arrOfArr = relayGroup.boards.map(b => Array.from(
   {length: 16}, 
-  (el, i) => (i == 1 || i == 16) ? 1: 0
+  (el, i) => (i == 0 || i == 15) ? 1: 0
 ));
 relayGroup.toggle(arrOfArr, "on", (errors, success) => {
   if (errors) return console.log(errors);
