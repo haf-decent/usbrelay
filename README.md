@@ -188,10 +188,16 @@ console.log(relayGroup.getStates());
 ```
 
 #### setStates
-Coming soon
+The setStates method can be used to specify desired states for each Board. There are two ways to construct your input stateArray:
 
-#### toggle & toggleOne
-The toggle and toggleOne methods are similar to the Board methods of the same name. The difference is that these methods can access each initialized Board in one command. The relays are accessible according to the order in which their board was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48.
+1. Single Array
+
+stateArray has a length of the number of initialized Boards multiplied by 16. Relays are designated according to the order in which their Board was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48. stateArray index position + 1 = Relay# (wasn't quite sure how else to say that clearly)
+
+2. Array of Arrays
+
+Each array inside the main array represent the board at that index, so the first array represents the state of '/dev/usbRelay1' for example. You must include as many arrays (even if they are emtpy) as there are boards initialized or an error will be thrown
+
 ```javascript
 const {USBrelay} = require('usbrelay');
 
@@ -199,12 +205,66 @@ var ports = ['/dev/usbRelay1','/dev/usbRelay2','/dev/usbRelay3'];
 var relayGroup = new USBrelay({ports: ports});
 
 // turn on the first (local 1) and last (local 16) relay of each board
+// using single Array
+var singleArray = Array.from(
+  {length: 16*relayGroup.nBoards}, 
+  (el, i) => (i%16 == 1 || i%16 == 0) ? 1: 0
+);
+relayGroup.toggle(singleArray, "on", (errors, success) => {
+  if (errors) return console.log(errors);
+  console.log(relayGroup.getStates());
+});
+
+// using Array of Arrays
+var arrOfArr = relayGroup.boards.map(b => Array.from(
+  {length: 16}, 
+  (el, i) => (i == 1 || i == 16) ? 1: 0
+));
+relayGroup.toggle(arrOfArr, "on", (errors, success) => {
+  if (errors) return console.log(errors);
+  console.log(relayGroup.getStates());
+})
+
+/* Example output for both
+[
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+]
+*/
+```
+
+#### toggle & toggleOne
+The toggle and toggleOne methods are similar to the Board methods of the same name. The difference is that these methods can access each initialized Board in one command. Similarly to setStates, there are two ways to specify which relays on which Boards you want to toggle:
+
+1. Single Array
+
+Relays are accessible according to the order in which their Board was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48. (note: the toggleOne method uses this numbering system exclusively)
+
+2. Array of Arrays
+
+Each array inside the main array represent the board at that index, so the first array will toggle relays on '/dev/usbRelay1' for example. You must include as many arrays (even if they are emtpy) as there are boards initialized or an error will be thrown
+
+```javascript
+const {USBrelay} = require('usbrelay');
+
+var ports = ['/dev/usbRelay1','/dev/usbRelay2','/dev/usbRelay3'];
+var relayGroup = new USBrelay({ports: ports});
+
+// turn on the first (local 1) and last (local 16) relay of each board
+// using single Array
 relayGroup.toggle([1,16,17,32,33,48], "on", (errors, success) => {
   if (errors) return console.log(errors);
   console.log(relayGroup.getStates());
 });
 
-/* Example output
+// using Array of Arrays
+relayGroup.toggle([[1,16],[1,16],[1,16]], "on", (errors, success) => {
+  if (errors) return console.log(errors);
+  console.log(relayGroup.getStates());
+})
+
+/* Example output for both
 [
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -221,7 +281,7 @@ const {USBrelay} = require('usbrelay');
 var ports = ['/dev/usbRelay1','/dev/usbRelay2','/dev/usbRelay3'];
 var relayGroup = new USBrelay({ports: ports});
 
-// turn on the first (local 1) and last (local 16) relay of each board
+// turn on the first (local 1) and last (local 16) relay of each board and then reset them
 relayGroup.toggle([1,16,17,32,33,48], "on", (errors, success) => {
   if (errors) return console.log(errors);
   console.log(relayGroup.getStates());
@@ -277,8 +337,7 @@ relayGroup.toggle([1,16,17,32,33,48], "on", (errors, success) => {
 ```
 
 ## Updates
-1. Create setStates method for USBrelay
-2. Get state of Board directly through a command rather than assuming 16x'0' state when initializing Boards
+1. Get state of Board directly through a command rather than assuming 16x'0' state when initializing Boards
 
 ## Contributing
 I made this module on my own. Any help/feedback is appreciated.
