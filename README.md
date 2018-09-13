@@ -34,7 +34,7 @@ That's it. Your boards should now be accessible at `/dev/<SYMLINK name of relay 
 
 ## Installation
 Ok, now that we have our Pi all set up, let's install this module:
-`$ npm install -save usbrelay`
+`$ npm install -save node-usbrelay`
 
 ## Usage
 This module has two constructors: `USBrelay` and `Board`
