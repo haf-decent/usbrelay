@@ -1,0 +1,26 @@
+{
+  "name": "usbrelay",
+  "version": "0.1.0",
+  "description": "API for controlling one or multiple Sainsmart 16ch USB Relay Board(s)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "usbrelay",
+    "sainsmart",
+    "ch341",
+    "relay",
+    "relayboard",
+    "usb"
+  ],
+  "author": "Ryan Hafner <r.hafner20@gmail.com>",
+  "license": "MIT",
+  "repository": {
+     "type": "git",
+     "url": "https://github.com/haf-decent/usbrelay.git"
+  },
+  "dependencies": {
+    "serialport": "^7.0.2"
+  }
+}
