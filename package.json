@@ -9,14 +9,12 @@
   "keywords": [
     "usb",
     "relay",
+    "relayboard",
     "raspi",
     "raspberrypi",
     "pi",
     "sainsmart",
-    "ch341",
-    "relay",
-    "relayboard",
-    "usb"
+    "ch341"
   ],
   "author": "Ryan Hafner <r.hafner20@gmail.com>",
   "license": "MIT",
