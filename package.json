@@ -7,7 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "usbrelay",
+    "usb",
+    "relay",
+    "raspi",
+    "raspberrypi",
+    "pi",
     "sainsmart",
     "ch341",
     "relay",
