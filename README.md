@@ -330,7 +330,8 @@ relayGroup.toggle([ 1, 16, 17, 32, 33, 48 ], "on", (errors, success) => {
 ```
 
 ## Updates
-1. Get state of Board directly through a command rather than assuming 16x'0' state when initializing Boards
+1. ~~Get state of Board directly through a command rather than assuming 16x'0' state when initializing Boards~~ (status command doesn't actually work : /)
+2. Add explicit support for 4,8ch relay boards
 
 ## Contributing
 I made this module on my own. Any help/feedback is appreciated.
