@@ -1,6 +1,6 @@
 'use strict';
 
-const Group = require('./lib/Group.js');
-const Board = require('./lib/Board.js');
+const RelayGroup = require('./lib/RelayGroup.js');
+const RelayBoard = require('./lib/RelayBoard.js');
 
-module.exports = { Group, Board }
+module.exports = { RelayGroup, RelayBoard }

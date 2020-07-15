@@ -1,18 +1,18 @@
 'use strict';
 
-const { Group, Board } = require('./index.js');
+const { RelayGroup, RelayBoard } = require('./index.js');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var group = new Group({
+var group = new RelayGroup({
     test: true,
     ports: ports
 });
 
-var board1 = new Board({
+var board1 = new RelayBoard({
     test: true,
     port: ports[0]
 });

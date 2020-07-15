@@ -37,22 +37,22 @@ Ok, now that we have our Pi all set up, let's install this module:
 `$ npm install -save node-usbrelay`
 
 ## Usage
-This module has two constructors: `Board` and `Group`
+This module has two constructors: `RelayBoard` and `RelayGroup`
 
-### Board
-Board exposes methods for querying and altering the state of an individual relay board. So if you're only using a single board, require Board from the module and initialize it with the SYMLINK path to your board:
+### RelayBoard
+RelayBoard exposes methods for querying and altering the state of an individual relay board. So if you're only using a single board, require RelayBoard from the module and initialize it with the SYMLINK path to your board:
 ```javascript
-const { Board } = require('node-usbrelay');
-var board1 = new Board({ port: '/dev/usbRelay1' });
+const { RelayBoard } = require('node-usbrelay');
+var board1 = new RelayBoard({ port: '/dev/usbRelay1' });
 ```
-The `Board` constructor requires a port designation to initialize. You can also pass it a `name` as well as a true/false flag as the `test` property if you just want to play around with the methods without having a physical board connected.
-A Board object has the following methods:
+The `RelayBoard` constructor requires a port designation to initialize. You can also pass it a `name` as well as a true/false flag as the `test` property if you just want to play around with the methods without having a physical board connected.
+A RelayBoard object has the following methods:
 
 #### getState
 The getState method returns an array representing the state of each relay with '0' representing NC (usually off) and '1' representing NO (usually on):
 ```javascript
-const { Board } = require('node-usbrelay');
-var board1 = new Board({ port: '/dev/usbRelay1' });
+const { RelayBoard } = require('node-usbrelay');
+var board1 = new RelayBoard({ port: '/dev/usbRelay1' });
 
 console.log(board1.getState());
 
@@ -64,8 +64,8 @@ console.log(board1.getState());
 #### setState
 The setState method accepts a state array, which must contain 16 entries of either '0' or '1', and uses the toggle method to change the state of each relay as described by the array. It returns a Promise which resolves an object which includes an array of errors and the resulting state. The errors are included in the resolve rather than being rejected/thrown so you can decide how you would like to handle them (e.g. retry operation, undo previous action, quit entirely) without it automatically being thrown to the catch statement:
 ```javascript
-const { Board } = require('node-usbrelay');
-var board1 = new Board({ port: '/dev/usbRelay1' });
+const { RelayBoard } = require('node-usbrelay');
+var board1 = new RelayBoard({ port: '/dev/usbRelay1' });
 
 board1.setState([ 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1 ])
     .then(({ errors, state }) => {
@@ -82,8 +82,8 @@ board1.setState([ 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1 ])
 #### toggle & toggleOne
 The toggle method accepts an array of relay numbers (1-16) and a command ("on" or "off"). It returns a promise which resolves an object with errors and the resulting state:
 ```javascript
-const { Board } = require('node-usbrelay');
-var board1 = new Board({ port: '/dev/usbRelay1' });
+const { RelayBoard } = require('node-usbrelay');
+var board1 = new RelayBoard({ port: '/dev/usbRelay1' });
 
 board1.toggle([ 2, 3, 5, 10, 11, 13, 16 ], 'on')
     .then(({ errors, state }) => {
@@ -104,8 +104,8 @@ ToggleOne state:    [0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1]
 #### reset
 The reset method turns all relays "off". It is similar to using setState with a 16x'0' array, but much quicker:
 ```javascript
-const { Board } = require('node-usbrelay');
-var board1 = new Board({ port: '/dev/usbRelay1' });
+const { RelayBoard } = require('node-usbrelay');
+var board1 = new RelayBoard({ port: '/dev/usbRelay1' });
 
 board1.toggle([ 2, 3, 5, 10, 11, 13, 16 ], 'on')
     .then(({ errors, state }) => {
@@ -123,31 +123,31 @@ Reset state:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 */
 ```
 
-### Group
-If you have multiple boards connected to your Pi, I suggest using the Group constructor, which allows you to manage all boards at once and also features a discovery method:
+### RelayGroup
+If you have multiple boards connected to your Pi, I suggest using the RelayGroup constructor, which allows you to manage all boards at once and also features a discovery method:
 ```javascript
-const { Group } = require('node-usbrelay');
-var relayGroup = new Group();
+const { RelayGroup } = require('node-usbrelay');
+var relayGroup = new RelayGroup();
 ```
-If you already know the ports you want to initialize, you can pass a an array of Board property objects to the constructor:
+If you already know the ports you want to initialize, you can pass a an array of RelayBoard property objects to the constructor:
 ```javascript
-const { Group } = require('node-usbrelay');
+const { RelayGroup } = require('node-usbrelay');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var relayGroup = new Group({ ports });
+var relayGroup = new RelayGroup({ ports });
 ```
 
-A Group object shares a lot of the same methods as Board, with some additional capabilities:
+A RelayGroup object shares a lot of the same methods as RelayBoard, with some additional capabilities:
 
 #### listPorts & findBoards
 The listPorts and findBoards methods both utilize the serialport library's list method to find available ports/boards. The listPorts method will list all available ports, whereas the findBoards method will filter the list to just find connected Sainsmart 16ch Relay Boards:
 ```javascript
-const { Group } = require('node-usbrelay');
-var relayGroup = new Group();
+const { RelayGroup } = require('node-usbrelay');
+var relayGroup = new RelayGroup();
 
 relayGroup.findBoards()
     .then(found => console.log(JSON.stringify(found, null, 4)))
@@ -155,10 +155,10 @@ relayGroup.findBoards()
 ```
 
 #### assignBoards
-The assignBoards method accepts an array of board designations, initializing a new Board object for each. It will throw an error if the board initialization fails for any reason. Otherwise it returns the number of boards that were successfully initialized (note: this method is not necessary if you initialize the Group constructor with a ports array):
+The assignBoards method accepts an array of board designations, initializing a new RelayBoard object for each. It will throw an error if the board initialization fails for any reason. Otherwise it returns the number of boards that were successfully initialized (note: this method is not necessary if you initialize the RelayGroup constructor with a ports array):
 ```javascript
-const { Group } = require('node-usbrelay');
-var relayGroup = new Group();
+const { RelayGroup } = require('node-usbrelay');
+var relayGroup = new RelayGroup();
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
@@ -173,16 +173,16 @@ console.log(relayGroup.assignBoards(ports));
 ```
 
 #### getStates
-The getStates method returns an array of the state of each initialized Board (note: the array is filled in the order in which the Boards were initialized - meaning the first array corresponds to the state of '/dev/usbRelay1' and so on):
+The getStates method returns an array of the state of each initialized RelayBoard (note: the array is filled in the order in which the RelayBoards were initialized - meaning the first array corresponds to the state of '/dev/usbRelay1' and so on):
 ```javascript
-const { Group } = require('node-usbrelay');
+const { RelayGroup } = require('node-usbrelay');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var relayGroup = new Group({ ports });
+var relayGroup = new RelayGroup({ ports });
 
 console.log(relayGroup.getStates());
 
@@ -196,25 +196,25 @@ console.log(relayGroup.getStates());
 ```
 
 #### setStates
-The setStates method can be used to specify desired states for each Board. It's best used in the case that you have multiple pre-defined configurations you want to swtich between. There are two ways to construct your input stateArray:
+The setStates method can be used to specify desired states for each RelayBoard. It's best used in the case that you have multiple pre-defined configurations you want to swtich between. There are two ways to construct your input stateArray:
 
 1. Single Array
 
-stateArray has a length of the number of initialized Boards multiplied by 16. Relays are designated according to the order in which their Board was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48. stateArray index position + 1 = Relay# (wasn't quite sure how else to say that clearly)
+stateArray has a length of the number of initialized RelayBoards multiplied by 16. Relays are designated according to the order in which their RelayBoard was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48. stateArray index position + 1 = Relay# (wasn't quite sure how else to say that clearly)
 
 2. Array of Arrays
 
 Each array inside the main array represent the board at that index, so the first array represents the state of '/dev/usbRelay1' for example. You must include as many arrays as there are boards initialized or an error will be thrown
 
 ```javascript
-const { Group } = require('node-usbrelay');
+const { RelayGroup } = require('node-usbrelay');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var relayGroup = new Group({ ports });
+var relayGroup = new RelayGroup({ ports });
 
 // turn on the first (local 1) and last (local 16) relay of each board
 // using single Array
@@ -255,25 +255,25 @@ relayGroup.setStates(arrOfArr, 'on')
 ```
 
 #### toggle & toggleOne
-The toggle and toggleOne methods are similar to the Board methods of the same name. The difference is that these methods can access each initialized Board in one command. Similarly to setStates, there are two ways to specify which relays on which Boards you want to toggle:
+The toggle and toggleOne methods are similar to the RelayBoard methods of the same name. The difference is that these methods can access each initialized RelayBoard in one command. Similarly to setStates, there are two ways to specify which relays on which RelayBoards you want to toggle:
 
 1. Single Array
 
-Relays are accessible according to the order in which their Board was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48. (note: the toggleOne method uses this numbering system exclusively)
+Relays are accessible according to the order in which their RelayBoard was intialized, so '/dev/usbRelay1' has relays 1-16, '/dev/usbRelay2' has 17-32, and '/dev/usbRelay3' has 33-48. (note: the toggleOne method uses this numbering system exclusively)
 
 2. Array of Arrays
 
 Each array inside the main array represent the board at that index, so the first array will toggle relays on '/dev/usbRelay1' for example. You must include as many arrays (even if they are emtpy) as there are boards initialized or an error will be thrown
 
 ```javascript
-const { Group } = require('node-usbrelay');
+const { RelayGroup } = require('node-usbrelay');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var relayGroup = new Group({ ports });
+var relayGroup = new RelayGroup({ ports });
 
 // turn on the first (local 1) and last (local 16) relay of each board
 // using single Array
@@ -304,16 +304,16 @@ relayGroup.toggle([[ 1, 16 ], [ 1, 16 ], [ 1, 16 ]], 'on')
 ```
 
 #### reset
-The reset method resets all connected Boards to a 16x'0' state:
+The reset method resets all connected RelayBoards to a 16x'0' state:
 ```javascript
-const { Group } = require('node-usbrelay');
+const { RelayGroup } = require('node-usbrelay');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var relayGroup = new Group({ ports });
+var relayGroup = new RelayGroup({ ports });
 
 // turn on the first (local 1) and last (local 16) relay of each board and then reset them
 relayGroup.toggle([ 1, 16, 17, 32, 33, 48 ], 'on')
@@ -340,17 +340,17 @@ relayGroup.toggle([ 1, 16, 17, 32, 33, 48 ], 'on')
 */
 ```
 
-#### Group.boards
-In addition to the top-level Group methods listed out above, the Group object exposes the Board methods of each initialized Board, so each Board is still able to be controlled individually. You can access individual boards through the boards array:
+#### RelayGroup.boards
+In addition to the top-level RelayGroup methods listed out above, the RelayGroup object exposes the RelayBoard methods of each initialized RelayBoard, so each RelayBoard is still able to be controlled individually. You can access individual boards through the boards array:
 ```javascript
-const { Group } = require('node-usbrelay');
+const { RelayGroup } = require('node-usbrelay');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var relayGroup = new Group({ ports });
+var relayGroup = new RelayGroup({ ports });
 
 relayGroup.toggle([ 1, 16, 17, 32, 33, 48 ], 'on')
     .then(({ errors, states }) => {
@@ -377,7 +377,7 @@ relayGroup.toggle([ 1, 16, 17, 32, 33, 48 ], 'on')
 ```
 
 ## Updates
-1. ~~Get state of Board directly through a command rather than assuming 16x'0' state when initializing Boards~~ (status command doesn't actually work : /)
+1. ~~Get state of RelayBoard directly through a command rather than assuming 16x'0' state when initializing RelayBoards~~ (status command doesn't actually work : /)
 2. Add explicit support for 4,8ch relay boards
 
 ## Contributing
