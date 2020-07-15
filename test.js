@@ -1,13 +1,13 @@
 'use strict';
 
-const { USBrelay, Board } = require('./index.js');
+const { Group, Board } = require('./index.js');
 
 var ports = [
     { port: '/dev/usbRelay1', name: 'foo' },
     { port: '/dev/usbRelay2', name: 'bar' },
     { port: '/dev/usbRelay3', name: 'baz' }
 ];
-var group = new USBrelay({
+var group = new Group({
     test: true,
     ports: ports
 });

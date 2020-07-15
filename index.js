@@ -1,6 +1,6 @@
 'use strict';
 
-const USBrelay = require('./lib/USBrelay.js');
+const Group = require('./lib/Group.js');
 const Board = require('./lib/Board.js');
 
-module.exports = { USBrelay, Board }
+module.exports = { Group, Board }
