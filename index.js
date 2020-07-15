@@ -3,7 +3,4 @@
 const USBrelay = require('./lib/USBrelay.js');
 const Board = require('./lib/Board.js');
 
-module.exports = {
-    USBrelay: USBrelay,
-    Board: Board
-}
+module.exports = { USBrelay, Board }

@@ -19,10 +19,10 @@
   "author": "Ryan Hafner <r.hafner20@gmail.com>",
   "license": "MIT",
   "repository": {
-     "type": "git",
-     "url": "https://github.com/haf-decent/usbrelay.git"
+    "type": "git",
+    "url": "https://github.com/haf-decent/usbrelay.git"
   },
   "dependencies": {
-    "serialport": "^7.0.2"
+    "serialport": "^9.0.0"
   }
 }
