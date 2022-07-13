@@ -2,8 +2,10 @@
   "name": "node-usbrelay",
   "version": "1.0.0",
   "description": "API for controlling one or multiple Sainsmart 16ch USB Relay Board(s)",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -23,6 +25,11 @@
     "url": "https://github.com/haf-decent/usbrelay.git"
   },
   "dependencies": {
-    "serialport": "^9.0.0"
+    "serialport": "^10.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.3",
+    "@types/serialport": "^8.0.2",
+    "typescript": "^4.7.4"
   }
 }
