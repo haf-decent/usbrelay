@@ -60,15 +60,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RelayBoard = exports.RelayState = void 0;
-var SerialPort = require("serialport");
+var SerialPort = require("serialport").SerialPort;
 var Commands = __importStar(require("./commands"));
 var RelayState;
 (function (RelayState) {
     RelayState[RelayState["CLOSED"] = 0] = "CLOSED";
     RelayState[RelayState["OPEN"] = 1] = "OPEN";
 })(RelayState = exports.RelayState || (exports.RelayState = {}));
-function testWrite(buffer, cb) {
-    console.log("TEST MODE: Writing buffer: ".concat(buffer));
+function testWrite(_, cb) {
+    // console.log(`TEST MODE: Writing buffer: ${buffer}`);
     cb();
 }
 var RelayBoard = /** @class */ (function () {
@@ -148,14 +148,14 @@ var RelayBoard = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         relays.forEach(function (relay) { return _this._validateRelay(relay); });
-                        return [4 /*yield*/, Promise.allSettled(relays.map(function (r) { return _this._write(Commands.toggle[r][command]); }))];
+                        return [4 /*yield*/, Promise.allSettled(relays.map(function (r) { return _this._write(Commands.toggle[r - 1][command]); }))];
                     case 1:
                         results = _a.sent();
                         errors = [];
                         results.forEach(function (_a, i) {
                             var status = _a.status, reason = _a.reason;
                             if (status === "fulfilled")
-                                _this.state[relays[i]] = command;
+                                _this.state[relays[i] - 1] = command;
                             else
                                 errors.push(reason);
                         });
@@ -168,6 +168,7 @@ var RelayBoard = /** @class */ (function () {
         });
     };
     RelayBoard.prototype.reset = function (command) {
+        if (command === void 0) { command = RelayState.CLOSED; }
         return __awaiter(this, void 0, void 0, function () {
             var buffer;
             return __generator(this, function (_a) {

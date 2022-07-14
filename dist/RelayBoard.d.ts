@@ -45,5 +45,5 @@ export declare class RelayBoard {
         errors: string[];
         state: StateArray;
     }>;
-    reset(command: RelayState): Promise<StateArray>;
+    reset(command?: RelayState): Promise<StateArray>;
 }

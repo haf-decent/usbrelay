@@ -1,4 +1,4 @@
-const SerialPort = require("serialport");
+const { SerialPort } = require("serialport");
 
 import * as Commands from "./commands";
 
@@ -26,8 +26,8 @@ type ValueAllSettled<T> = {
 	reason?: string
 }
 
-function testWrite(buffer: Buffer, cb: () => void) {
-	console.log(`TEST MODE: Writing buffer: ${buffer}`);
+function testWrite(_: Buffer, cb: () => void) {
+	// console.log(`TEST MODE: Writing buffer: ${buffer}`);
 	cb();
 }
 
@@ -93,10 +93,10 @@ export class RelayBoard {
 	async toggle(relays: number[], command: RelayState) {
 		relays.forEach(relay => this._validateRelay(relay));
 
-		const results = await Promise.allSettled(relays.map(r => this._write(Commands.toggle[r][ command ]))) as ValueAllSettled<null>[];
+		const results = await Promise.allSettled(relays.map(r => this._write(Commands.toggle[ r - 1 ][ command ]))) as ValueAllSettled<null>[];
 		const errors: string[] = [];
 		results.forEach(({ status, reason }, i) => {
-			if (status === "fulfilled") this.state[ relays[i] ] = command;
+			if (status === "fulfilled") this.state[ relays[i] - 1 ] = command;
 			else errors.push(reason as string);
 		});
 		return {
@@ -105,7 +105,7 @@ export class RelayBoard {
 		}
 	}
 
-	async reset(command: RelayState) {
+	async reset(command: RelayState = RelayState.CLOSED) {
 		const buffer = command === RelayState.CLOSED
 			? Commands.resetOff
 			: Commands.resetOn;
