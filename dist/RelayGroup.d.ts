@@ -6,7 +6,7 @@ interface GroupProps {
 export declare class RelayGroup {
     boards: RelayBoard[];
     test: boolean;
-    static listPorts(): Promise<unknown>;
+    static listPorts(): any;
     constructor({ boards, test }: GroupProps);
     _validateRelay(relay: number): {
         boardIndex: number;
@@ -15,15 +15,15 @@ export declare class RelayGroup {
     assignBoards(boards: any[]): number;
     findBoards(): Promise<any>;
     getStates(): StateArray[];
-    setStates(states: StateArray[]): Promise<{
-        errors: string[][];
+    setStates(states: StateArray[] | RelayState[]): Promise<{
+        errors: string[];
         states: StateArray[];
     }>;
     toggleOne(relay: number, command: RelayState): Promise<StateArray>;
     toggle(relays: number[] | number[][], command: RelayState): Promise<{
-        errors: string[][];
+        errors: string[];
         states: StateArray[];
     }>;
-    reset(command: RelayState): Promise<StateArray[]>;
+    reset(command?: RelayState): Promise<StateArray[]>;
 }
 export {};

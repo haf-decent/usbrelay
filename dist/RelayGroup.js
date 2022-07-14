@@ -46,9 +46,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RelayGroup = void 0;
-var list = require("serialport").list;
+var SerialPort = require("serialport").SerialPort;
 var RelayBoard_1 = require("./RelayBoard");
 var RelayGroup = /** @class */ (function () {
     function RelayGroup(_a) {
@@ -58,13 +67,7 @@ var RelayGroup = /** @class */ (function () {
         this.assignBoards(boards);
     }
     RelayGroup.listPorts = function () {
-        return new Promise(function (resolve, reject) {
-            list(function (error, ports) {
-                if (error)
-                    return reject(error);
-                return resolve(ports);
-            });
-        });
+        return SerialPort.list();
     };
     RelayGroup.prototype._validateRelay = function (relay) {
         if (relay < 1)
@@ -121,14 +124,22 @@ var RelayGroup = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (states.length !== this.boards.length)
-                            throw new Error("A stateArray for each initialized board must be provided (".concat(this.boards.length, " boards =/= ").concat(states.length, " states)"));
+                        if (Array.isArray(states[0])) {
+                            if (states.length !== this.boards.length)
+                                throw new Error("A stateArray for each initialized board must be provided (".concat(this.boards.length, " boards =/= ").concat(states.length, " states)"));
+                        }
+                        else {
+                            states = states.reduce(function (arr, state, i) {
+                                arr[Math.floor(i / 16)].push(state);
+                                return arr;
+                            }, this.boards.map(function (_) { return new Array(); }));
+                        }
                         return [4 /*yield*/, Promise.all(states.map(function (state, i) { return _this.boards[i].setState(state); }))];
                     case 1:
                         results = _a.sent();
                         return [2 /*return*/, results.reduce(function (result, _a) {
                                 var errors = _a.errors, state = _a.state;
-                                result.errors.push(errors);
+                                result.errors = __spreadArray(__spreadArray([], result.errors, true), errors, true);
                                 result.states.push(state);
                                 return result;
                             }, { errors: [], states: [] })];
@@ -152,21 +163,23 @@ var RelayGroup = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (relays[0] && Array.isArray(relays[0]) && relays.length !== this.boards.length)
-                            throw new Error("An array of relays for each initialized board must be provided (".concat(this.boards.length, " boards =/= ").concat(relays.length, " relay arrays). If no relays are to be toggled on a certain board, provide an empty array."));
+                        if (Array.isArray(relays[0])) {
+                            if (relays.length !== this.boards.length)
+                                throw new Error("An array of relays for each initialized board must be provided (".concat(this.boards.length, " boards =/= ").concat(relays.length, " relay arrays). If no relays are to be toggled on a certain board, provide an empty array."));
+                        }
                         else {
                             relays = relays.reduce(function (arr, relay) {
                                 var _a = _this._validateRelay(relay), boardIndex = _a.boardIndex, relayIndex = _a.relayIndex;
                                 arr[boardIndex].push(relayIndex);
                                 return arr;
-                            }, this.boards.map(function (_) { return ([]); }));
+                            }, this.boards.map(function (_) { return new Array(); }));
                         }
                         return [4 /*yield*/, Promise.all(relays.map(function (relayArr, i) { return _this.boards[i].toggle(relayArr, command); }))];
                     case 1:
                         results = _a.sent();
                         return [2 /*return*/, results.reduce(function (result, _a) {
                                 var errors = _a.errors, state = _a.state;
-                                result.errors.push(errors);
+                                result.errors = __spreadArray(__spreadArray([], result.errors, true), errors, true);
                                 result.states.push(state);
                                 return result;
                             }, { errors: [], states: [] })];

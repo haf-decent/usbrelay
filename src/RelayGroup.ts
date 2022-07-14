@@ -1,4 +1,4 @@
-const { list } = require("serialport");
+const { SerialPort } = require("serialport");
 
 import { RelayBoard, BoardProps, StateArray, RelayState } from "./RelayBoard";
 
@@ -12,12 +12,7 @@ export class RelayGroup {
 	test: boolean;
 
 	static listPorts() {
-		return new Promise((resolve, reject) => {
-			list((error: Error, ports: any) => {
-				if (error) return reject(error);
-				return resolve(ports);
-			});
-		});
+		return SerialPort.list();
 	}
 
 	constructor({ boards = [], test = false }: GroupProps) {
@@ -65,15 +60,23 @@ export class RelayGroup {
 		return this.boards.map(board => board.getState());
 	}
 
-	async setStates(states: StateArray[]) {
-		if (states.length !== this.boards.length) throw new Error(`A stateArray for each initialized board must be provided (${this.boards.length} boards =/= ${states.length} states)`);
+	async setStates(states: StateArray[] | RelayState[]) {
+		if (Array.isArray(states[0])) {
+			if (states.length !== this.boards.length) throw new Error(`A stateArray for each initialized board must be provided (${this.boards.length} boards =/= ${states.length} states)`);
+		}
+		else {
+			states = (states as RelayState[]).reduce((arr, state, i) => {
+				arr[ Math.floor(i / 16) ].push(state);
+				return arr;
+			}, this.boards.map(_ => new Array()) as StateArray[]);
+		}
 
-		const results = await Promise.all(states.map((state, i) => this.boards[i].setState(state)));
+		const results = await Promise.all(states.map((state, i) => this.boards[i].setState(state as StateArray)));
 		return results.reduce((result, { errors, state }) => {
-			result.errors.push(errors);
+			result.errors = [ ...result.errors, ...errors ];
 			result.states.push(state);
 			return result;
-		}, { errors: [] as string[][], states: [] as StateArray[] });
+		}, { errors: [] as string[], states: [] as StateArray[] });
 	}
 
 	async toggleOne(relay: number, command: RelayState) {
@@ -83,24 +86,26 @@ export class RelayGroup {
 	}
 
 	async toggle(relays: number[] | number[][], command: RelayState) {
-		if (relays[0] && Array.isArray(relays[0]) && relays.length !== this.boards.length) throw new Error(`An array of relays for each initialized board must be provided (${this.boards.length} boards =/= ${relays.length} relay arrays). If no relays are to be toggled on a certain board, provide an empty array.`);
+		if (Array.isArray(relays[0])) {
+			if (relays.length !== this.boards.length) throw new Error(`An array of relays for each initialized board must be provided (${this.boards.length} boards =/= ${relays.length} relay arrays). If no relays are to be toggled on a certain board, provide an empty array.`);
+		}
 		else {
 			relays = (relays as number[]).reduce((arr, relay) => {
 				const { boardIndex, relayIndex } = this._validateRelay(relay);
 				arr[ boardIndex ].push(relayIndex);
 				return arr;
-			}, this.boards.map(_ => ([])) as number[][]);
+			}, this.boards.map(_ => new Array()) as number[][]);
 		}
 
-		const results = await Promise.all(relays.map((relayArr, i) => this.boards[i].toggle(relayArr, command)));
+		const results = await Promise.all(relays.map((relayArr, i) => this.boards[i].toggle(relayArr as number[], command)));
 		return results.reduce((result, { errors, state }) => {
-			result.errors.push(errors);
+			result.errors = [ ...result.errors, ...errors ];
 			result.states.push(state);
 			return result;
-		}, { errors: [] as string[][], states: [] as StateArray[] });
+		}, { errors: [] as string[], states: [] as StateArray[] });
 	}
 
-	async reset(command: RelayState) {
+	async reset(command?: RelayState) {
 		return Promise.all(this.boards.map(board => board.reset(command)));
 	}
 }
